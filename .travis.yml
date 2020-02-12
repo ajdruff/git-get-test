@@ -1,0 +1,27 @@
+language: bash
+
+before_install:
+  - sudo apt-get update
+  - sudo apt-get install make autoconf dash
+  - sudo apt-get install curl
+  - sudo apt-get install binutils-dev libcurl4-openssl-dev zlib1g-dev libdw-dev libiberty-dev
+  - git clone https://github.com/SimonKagstrom/kcov.git
+  - cd kcov
+  - cmake .
+  - make
+  - sudo make install
+  - cd -
+  - rm -rf kcov
+  - mkdir kcov
+
+os: linux
+dist: bionic
+script:
+    - kcov $(pwd)/kcov tests/test-git-get.sh
+    - kcov --coveralls-id=$TRAVIS_JOB_ID $(pwd)/kcov tests/test-git-get.sh
+
+    - tests/test-git-get.sh
+depth: false
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)  -s kcov
